@@ -1,9 +1,12 @@
 [project]
-name = "hostctl"
+name = "mknight"
 version = "0.1.0"
 description = "Local Ubuntu 24.04 host hardening toolkit"
 requires-python = ">=3.12"
 dependencies = []
+
+[project.scripts]
+mknight = "app.cli:main"
 
 [dependency-groups]
 dev = [
@@ -17,4 +20,3 @@ pythonpath = ["."]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-

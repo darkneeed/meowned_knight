@@ -1,2 +1,1 @@
-"""Core primitives for hostctl."""
-
+"""Core primitives for mknight."""

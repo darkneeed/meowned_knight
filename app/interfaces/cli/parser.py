@@ -50,7 +50,7 @@ def build_parser(lang: str = "ru") -> argparse.ArgumentParser:
         ]
     )
     parser = argparse.ArgumentParser(
-        prog="hostctl",
+        prog="mknight",
         description=t(lang, "parser.description"),
         epilog=epilog,
         formatter_class=argparse.RawDescriptionHelpFormatter,

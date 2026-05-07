@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 def configure_logging(level: str, log_file: Path) -> logging.Logger:
-    logger = logging.getLogger("hostctl")
+    logger = logging.getLogger("mknight")
     logger.setLevel(getattr(logging, level.upper(), logging.INFO))
     logger.handlers.clear()
 
@@ -20,4 +20,3 @@ def configure_logging(level: str, log_file: Path) -> logging.Logger:
     logger.addHandler(file_handler)
 
     return logger
-

@@ -1,1 +1,1 @@
-"""Test helpers and suites for hostctl."""
+"""Test helpers and suites for mknight."""

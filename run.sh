@@ -2,9 +2,20 @@
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LAUNCHER_PATH="/usr/local/bin/mknight"
+
+install_launcher() {
+  cat > "${LAUNCHER_PATH}" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+PROJECT_DIR="${PROJECT_DIR}"
+exec "\${PROJECT_DIR}/.venv/bin/mknight" "\$@"
+EOF
+  chmod 755 "${LAUNCHER_PATH}"
+}
 
 if [[ "${EUID}" -ne 0 ]]; then
-  echo "hostctl must run as root. Re-run with sudo." >&2
+  echo "mknight must run as root. Re-run with sudo." >&2
   exit 1
 fi
 
@@ -25,5 +36,5 @@ fi
 
 cd "${PROJECT_DIR}"
 uv sync
-exec "${PROJECT_DIR}/.venv/bin/python" "${PROJECT_DIR}/main.py" "$@"
-
+install_launcher
+exec "${PROJECT_DIR}/.venv/bin/mknight" "$@"

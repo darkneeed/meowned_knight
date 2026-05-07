@@ -1,2 +1,1 @@
-"""hostctl application package."""
-
+"""mknight application package."""

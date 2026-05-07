@@ -37,4 +37,5 @@ def test_build_parser_help_includes_service_catalog_and_examples() -> None:
     assert "Каталог сервисов:" in help_text
     assert "1. Firewall" in help_text
     assert "Действия:" in help_text
-    assert "hostctl --all --activate" in help_text
+    assert "usage: mknight" in help_text
+    assert "mknight --all --activate" in help_text

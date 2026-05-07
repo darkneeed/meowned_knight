@@ -38,12 +38,11 @@ def build_runtime(cli_options: CliOptions) -> Runtime:
 def ensure_supported_runtime(runtime: Runtime) -> None:
     system = runtime.system
     if not system.is_linux():
-        raise SystemExit("hostctl supports only local Linux hosts.")
+        raise SystemExit("mknight supports only local Linux hosts.")
     if os.geteuid() != 0:
-        raise SystemExit("hostctl must run as root.")
+        raise SystemExit("mknight must run as root.")
     release = system.read_os_release()
     os_id = release.get("ID", "")
     version = release.get("VERSION_ID", "")
     if os_id != "ubuntu" or version != "24.04":
-        raise SystemExit(f"hostctl supports only Ubuntu 24.04, got {os_id or 'unknown'} {version or 'unknown'}.")
-
+        raise SystemExit(f"mknight supports only Ubuntu 24.04, got {os_id or 'unknown'} {version or 'unknown'}.")

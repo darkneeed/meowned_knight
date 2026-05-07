@@ -108,5 +108,4 @@ class FakeRuntime:
                 "log_level": "INFO",
             },
         )()
-        self.logger = logging.getLogger("hostctl-test")
-
+        self.logger = logging.getLogger("mknight-test")
