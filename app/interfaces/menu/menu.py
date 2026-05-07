@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import os
 import shutil
+import subprocess
 import sys
+from pathlib import Path
 
 from app.core.contracts import CliOptions, Operation
 from app.core.i18n import t
@@ -13,6 +15,14 @@ def _operation_descriptions(lang: str) -> list[tuple[str, str]]:
     return [
         (operation.value, t(lang, f"operation.{operation.value}.description"))
         for operation in Operation
+    ]
+
+
+def _maintenance_actions(lang: str) -> list[tuple[int, str, str]]:
+    return [
+        (9, "update", t(lang, "menu.maintenance.update")),
+        (10, "reinstall", t(lang, "menu.maintenance.reinstall")),
+        (11, "remove", t(lang, "menu.maintenance.remove")),
     ]
 
 
@@ -38,6 +48,11 @@ class MenuInterface:
         if os.environ.get("TERM", "").lower() == "dumb":
             return False
         return sys.stdout.isatty()
+
+    def _clear_screen(self) -> None:
+        if not sys.stdout.isatty():
+            return
+        print("\033[2J\033[H", end="")
 
     def _paint(self, text: str, *styles: str) -> str:
         if not self.color_enabled or not styles:
@@ -86,10 +101,47 @@ class MenuInterface:
         for operation, description in _operation_descriptions(self.lang):
             print(f"  - {self._paint(operation, self.ANSI_GREEN)}: {description}")
         print()
+        print(self._paint(t(self.lang, "menu.maintenance_title"), self.ANSI_BOLD, self.ANSI_CYAN))
+        for code, name, description in _maintenance_actions(self.lang):
+            print(f"  {self._paint(f'{code})', self.ANSI_YELLOW)} {self._paint(name, self.ANSI_BOLD, self.ANSI_WHITE)}")
+            print(f"     {self._paint(description, self.ANSI_DIM)}")
+        print()
         print(self._paint(t(self.lang, "menu.tip"), self.ANSI_YELLOW))
+
+    def _maintenance_scripts(self) -> dict[str, list[str]]:
+        project_root = Path(self.runtime.config.project_root)
+        install_script = project_root / "install.sh"
+        uninstall_script = project_root / "uninstall.sh"
+        return {
+            "update": ["bash", str(install_script)],
+            "reinstall": ["bash", str(install_script), "--reinstall"],
+            "remove": ["bash", str(uninstall_script), "--yes"],
+        }
+
+    def _run_maintenance(self, action_name: str) -> int:
+        print(self._paint(t(self.lang, "menu.selected_maintenance", name=action_name), self.ANSI_GREEN))
+
+        if action_name == "remove":
+            confirmation = input(self._paint(t(self.lang, "menu.remove.confirm"), self.ANSI_BOLD, self.ANSI_RED)).strip()
+            if confirmation != "DELETE":
+                print(self._paint(t(self.lang, "menu.remove.cancelled"), self.ANSI_YELLOW))
+                return 0
+
+        print(self._paint(t(self.lang, "menu.maintenance.running", name=action_name), self.ANSI_CYAN))
+        command = self._maintenance_scripts()[action_name]
+        env = os.environ.copy()
+        env["MKNIGHT_INSTALL_DIR"] = str(self.runtime.config.project_root)
+        completed = subprocess.run(command, check=False, env=env)
+        if completed.returncode == 0:
+            print(self._paint(t(self.lang, "menu.maintenance.success"), self.ANSI_GREEN, self.ANSI_BOLD))
+        else:
+            print(self._paint(t(self.lang, "menu.maintenance.failure"), self.ANSI_RED, self.ANSI_BOLD))
+        return completed.returncode
 
     def run(self) -> int:
         registry = self.manager.registry
+        maintenance_actions = {code: name for code, name, _ in _maintenance_actions(self.lang)}
+        self._clear_screen()
         self._print_header()
         self._print_services()
         self._print_operations()
@@ -101,6 +153,8 @@ class MenuInterface:
                 service_codes = []
                 all_services = True
                 print(self._paint(t(self.lang, "menu.selected_all_services"), self.ANSI_GREEN))
+            elif raw_code.isdigit() and int(raw_code) in maintenance_actions:
+                return self._run_maintenance(maintenance_actions[int(raw_code)])
             elif raw_code.isdigit() and int(raw_code) in registry:
                 service_codes = [int(raw_code)]
                 all_services = False

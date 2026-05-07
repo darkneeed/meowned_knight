@@ -2,17 +2,32 @@
 set -euo pipefail
 
 DEFAULT_REPO_URL="https://github.com/darkneeed/meowned_knight.git"
+BRANCH="${MKNIGHT_BRANCH:-main}"
+REINSTALL=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --reinstall)
+      REINSTALL=1
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
 REPO_URL="${1:-${MKNIGHT_REPO_URL:-${DEFAULT_REPO_URL}}}"
 INSTALL_DIR="${2:-${MKNIGHT_INSTALL_DIR:-/opt/mknight}}"
-BRANCH="${MKNIGHT_BRANCH:-main}"
 
 usage() {
   cat <<'EOF'
 Usage:
-  sudo bash install.sh [repo-url] [install-dir]
+  sudo bash install.sh [--reinstall] [repo-url] [install-dir]
 
 Examples:
   sudo bash install.sh
+  sudo bash install.sh --reinstall
   sudo bash install.sh https://github.com/darkneeed/meowned_knight.git
   curl -fsSL https://raw.githubusercontent.com/darkneeed/meowned_knight/main/install.sh | sudo bash
 
@@ -66,7 +81,7 @@ clone_or_update_repo() {
 }
 
 normalize_permissions() {
-  chmod 755 "${INSTALL_DIR}/run.sh" "${INSTALL_DIR}/install.sh" 2>/dev/null || true
+  chmod 755 "${INSTALL_DIR}/run.sh" "${INSTALL_DIR}/install.sh" "${INSTALL_DIR}/uninstall.sh" 2>/dev/null || true
 }
 
 main() {
@@ -78,7 +93,11 @@ main() {
   normalize_permissions
 
   cd "${INSTALL_DIR}"
-  bash ./run.sh --install-only
+  if [[ "${REINSTALL}" -eq 1 ]]; then
+    bash ./run.sh --reinstall --install-only
+  else
+    bash ./run.sh --install-only
+  fi
 
   cat <<EOF
 mknight installed successfully.

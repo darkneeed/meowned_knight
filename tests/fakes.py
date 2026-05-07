@@ -106,6 +106,7 @@ class FakeRuntime:
                 "dry_run": dry_run,
                 "language": language,
                 "log_level": "INFO",
+                "project_root": Path("D:/Projects/meowned_knight"),
             },
         )()
         self.logger = logging.getLogger("mknight-test")
