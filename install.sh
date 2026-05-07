@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="${1:-${MKNIGHT_REPO_URL:-}}"
+DEFAULT_REPO_URL="https://github.com/darkneeed/meowned_knight.git"
+REPO_URL="${1:-${MKNIGHT_REPO_URL:-${DEFAULT_REPO_URL}}}"
 INSTALL_DIR="${2:-${MKNIGHT_INSTALL_DIR:-/opt/mknight}}"
 BRANCH="${MKNIGHT_BRANCH:-main}"
 
 usage() {
   cat <<'EOF'
 Usage:
-  sudo bash install.sh <repo-url> [install-dir]
+  sudo bash install.sh [repo-url] [install-dir]
 
 Examples:
-  sudo bash install.sh https://github.com/example/mknight.git
-  curl -fsSL <raw-install-url> | sudo bash -s -- https://github.com/example/mknight.git
+  sudo bash install.sh
+  sudo bash install.sh https://github.com/darkneeed/meowned_knight.git
+  curl -fsSL https://raw.githubusercontent.com/darkneeed/meowned_knight/main/install.sh | sudo bash
 
 Environment variables:
   MKNIGHT_REPO_URL     Repository URL if not passed as the first argument
@@ -66,11 +68,6 @@ clone_or_update_repo() {
 main() {
   require_root
   ensure_supported_os
-
-  if [[ -z "${REPO_URL}" ]]; then
-    usage >&2
-    exit 1
-  fi
 
   ensure_prerequisites
   clone_or_update_repo

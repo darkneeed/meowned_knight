@@ -19,13 +19,13 @@
 Установка одной командой:
 
 ```bash
-curl -fsSL <raw-install-url> | sudo bash -s -- <repo-url>
+curl -fsSL https://raw.githubusercontent.com/darkneeed/meowned_knight/main/install.sh | sudo bash
 ```
 
 Например установщик может быть запущен так:
 
 ```bash
-sudo bash install.sh <repo-url>
+sudo bash install.sh
 ```
 
 Сценарий установки:
@@ -40,6 +40,18 @@ sudo bash install.sh <repo-url>
 
 ```bash
 sudo mknight --help
+```
+
+По умолчанию установщик использует репозиторий:
+
+```text
+https://github.com/darkneeed/meowned_knight.git
+```
+
+При необходимости можно передать другой URL первым аргументом:
+
+```bash
+sudo bash install.sh https://github.com/darkneeed/meowned_knight.git
 ```
 
 Запуск через обёртку:
