@@ -1,49 +1,49 @@
 # hostctl
 
-`hostctl` is a local CLI utility for bootstrap and hardening of an Ubuntu 24.04 host.
+`hostctl` — локальная CLI-утилита для базовой подготовки и hardening хоста на Ubuntu 24.04.
 
-The project manages a fixed set of host modules: firewall, SSH hardening, Fail2Ban, Docker, BBR, bootstrap packages, and traffic hardening for VPN-facing nodes.
+Проект управляет фиксированным набором модулей: firewall, SSH hardening, Fail2Ban, Docker, BBR, bootstrap-пакеты и сетевое ужесточение для VPN-facing узлов.
 
-## Requirements
+## Требования
 
-- Linux host
+- Linux-хост
 - Ubuntu 24.04
-- root privileges
+- права `root`
 - Python 3
-- `uv` for environment bootstrap when using `run.sh`
+- `uv` для подготовки окружения при запуске через `run.sh`
 
-`hostctl` checks the runtime before execution and exits if the host is not a local Ubuntu 24.04 machine or if it is not started as `root`.
+Перед выполнением `hostctl` проверяет окружение и завершает работу, если запущен не на локальной Ubuntu 24.04 или без `root`.
 
-## Quick Start
+## Быстрый старт
 
-Run the wrapper script:
+Запуск через обёртку:
 
 ```bash
 sudo ./run.sh
 ```
 
-This script:
+Скрипт:
 
-- checks `python3`
-- installs `uv` if needed
-- creates/syncs `.venv`
-- starts `main.py`
+- проверяет наличие `python3`
+- устанавливает `uv`, если его нет
+- создаёт и синхронизирует `.venv`
+- запускает `main.py`
 
-Direct run is also possible:
+Также можно запускать напрямую:
 
 ```bash
 python3 main.py
 ```
 
-## Modes
+## Режимы работы
 
-If you run `hostctl` without service codes and action flags, it opens an interactive menu:
+Если запустить `hostctl` без кодов сервисов и флагов действия, откроется интерактивное меню:
 
 ```bash
 sudo ./run.sh
 ```
 
-If you pass service codes and exactly one action, it runs in CLI mode:
+Если передать коды сервисов и ровно одно действие, утилита работает в CLI-режиме:
 
 ```bash
 sudo ./run.sh 1 2 --status
@@ -51,37 +51,37 @@ sudo ./run.sh --all --activate
 sudo ./run.sh 4 --install --dry-run
 ```
 
-## Available Modules
+## Доступные модули
 
-`hostctl` uses numeric service codes:
+`hostctl` использует числовые коды сервисов:
 
 1. `Firewall`  
-   Configures UFW, default ingress policy, SSH allowance, and Docker-aware forwarding rules.
+   Настраивает UFW, базовую политику входящего трафика, доступ по SSH и правила маршрутизации для Docker.
 2. `SSH Hardening`  
-   Applies key-based SSH defaults, validates `sshd` config, and reloads the service safely.
+   Применяет настройки SSH с входом по ключу, валидирует конфиг `sshd` и безопасно перезагружает сервис.
 3. `Fail2Ban`  
-   Enables SSH protection and optionally adds an nginx jail when nginx is installed.
+   Включает защиту SSH и при наличии nginx добавляет базовый jail для веб-аутентификации.
 4. `Docker`  
-   Installs Docker Engine and writes a baseline `/etc/docker/daemon.json`.
+   Устанавливает Docker Engine и записывает базовый `/etc/docker/daemon.json`.
 5. `BBR`  
-   Applies sysctl settings for `fq` and `tcp_congestion_control=bbr`.
+   Применяет sysctl-настройки для `fq` и `tcp_congestion_control=bbr`.
 6. `Bootstrap`  
-   Installs and verifies core packages such as `curl`, `ca-certificates`, `git`, and `ufw`.
+   Устанавливает и проверяет базовые пакеты, например `curl`, `ca-certificates`, `git` и `ufw`.
 7. `TrafficGuard`  
-   Applies network hardening sysctls and writes reviewed VPN camouflage examples.
+   Применяет sysctl-настройки сетевого hardening и пишет примеры маскировки VPN-трафика для последующей проверки.
 
-## Actions
+## Действия
 
-Exactly one action must be selected in CLI mode:
+В CLI-режиме нужно выбрать ровно одно действие:
 
-- `--install` installs packages and baseline configuration
-- `--uninstall` removes packages and managed files when supported
-- `--activate` enables the module and applies active configuration
-- `--deactivate` disables the module or removes its active configuration
-- `--status` inspects current state without changes
-- `--info` explains what the module manages and which files it uses
+- `--install` устанавливает пакеты и базовую конфигурацию
+- `--uninstall` удаляет пакеты и managed-файлы, если операция поддерживается
+- `--activate` включает модуль и применяет активную конфигурацию
+- `--deactivate` отключает модуль или убирает его активную конфигурацию
+- `--status` показывает текущее состояние без изменений
+- `--info` объясняет, чем управляет модуль и какие файлы использует
 
-Apply the chosen action to all modules with:
+Применить выбранное действие ко всем модулям:
 
 ```bash
 sudo ./run.sh --all --status
@@ -89,20 +89,20 @@ sudo ./run.sh --all --status
 
 ## Dry Run
 
-Use `--dry-run` to inspect the intended changes without modifying the system:
+Используйте `--dry-run`, чтобы посмотреть планируемые изменения без модификации системы:
 
 ```bash
 sudo ./run.sh 1 4 7 --activate --dry-run
 ```
 
-In this mode, commands are logged but files are not written and destructive changes are not applied.
+В этом режиме команды логируются, но файлы не перезаписываются и изменения не применяются.
 
-## Files and State
+## Файлы и состояние
 
-- `app.log` stores application logs in the project root
-- `.state/` stores backup state used before rewriting managed files
+- `app.log` хранит лог приложения в корне проекта
+- `.state/` хранит состояние резервных копий перед перезаписью managed-файлов
 
-Managed configuration is written directly to system paths such as:
+Управляемая конфигурация записывается напрямую в системные пути, например:
 
 - `/etc/ssh/sshd_config.d/99-hostctl-hardening.conf`
 - `/etc/fail2ban/jail.d/hostctl.local`
@@ -110,23 +110,23 @@ Managed configuration is written directly to system paths such as:
 - `/etc/sysctl.d/99-hostctl-bbr.conf`
 - `/etc/sysctl.d/99-hostctl-trafficguard.conf`
 
-Some modules also write reviewed example files, for example under `/etc/hostctl/examples/`.
+Некоторые модули также записывают проверочные примеры, например в `/etc/hostctl/examples/`.
 
-## Development
+## Разработка
 
-Install dependencies:
+Установка зависимостей:
 
 ```bash
 uv sync
 ```
 
-Run tests:
+Запуск тестов:
 
 ```bash
 pytest -q
 ```
 
-Show CLI help:
+Просмотр справки CLI:
 
 ```bash
 python3 main.py --help
