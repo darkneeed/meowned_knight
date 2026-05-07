@@ -6,6 +6,7 @@ from typing import Any
 
 
 class Operation(StrEnum):
+    APPLY = "apply"
     INSTALL = "install"
     UNINSTALL = "uninstall"
     ACTIVATE = "activate"
@@ -42,4 +43,3 @@ class ModuleResult:
         if self.unsupported:
             status = "SKIP"
         return f"[{status}] {self.code}={self.name} {self.operation.value}: {self.message}"
-

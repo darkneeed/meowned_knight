@@ -24,6 +24,14 @@ class Fail2BanService(BaseService):
             message="Fail2Ban installed.",
         )
 
+    def apply(self, runtime) -> ModuleResult:
+        if not self.package_installed(runtime, "fail2ban"):
+            self.apt_install(runtime, ["fail2ban"])
+        result = self.activate(runtime)
+        result.operation = Operation.APPLY
+        result.message = "Fail2Ban baseline applied."
+        return result
+
     def uninstall(self, runtime) -> ModuleResult:
         changed = runtime.system.remove_file(self.config_path)
         self.apt_remove(runtime, ["fail2ban"], purge=True)
@@ -86,4 +94,3 @@ class Fail2BanService(BaseService):
             message="Fail2Ban manages a dedicated jail.d drop-in for sshd and optionally nginx-http-auth.",
             details={"config_path": self.config_path},
         )
-

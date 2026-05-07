@@ -18,6 +18,12 @@ class BootstrapService(BaseService):
         result.message = "Base packages updated and installed."
         return result
 
+    def apply(self, runtime) -> ModuleResult:
+        result = self.install(runtime)
+        result.operation = Operation.APPLY
+        result.message = "Bootstrap baseline applied."
+        return result
+
     def uninstall(self, runtime) -> ModuleResult:
         return self.unsupported(Operation.UNINSTALL, "Bootstrap uninstall is not supported.")
 

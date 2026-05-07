@@ -13,6 +13,11 @@ class BaseService:
         handler = getattr(self, operation.value)
         return handler(runtime)
 
+    def apply(self, runtime) -> ModuleResult:
+        result = self.activate(runtime)
+        result.operation = Operation.APPLY
+        return result
+
     def unsupported(self, operation: Operation, reason: str) -> ModuleResult:
         return ModuleResult(
             code=self.code,
@@ -54,4 +59,3 @@ class BaseService:
     def managed_file_info(path: str | Path) -> dict[str, str]:
         target = Path(path)
         return {"path": str(target), "exists": str(target.exists()).lower()}
-

@@ -24,7 +24,7 @@ class StubManager:
 
 
 def test_menu_shows_descriptions_and_passes_selected_operation(monkeypatch, capsys) -> None:
-    answers = iter(["1", "status"])
+    answers = iter(["1"])
     manager = StubManager()
     runtime = FakeRuntime(FakeSystem(), language="ru")
 
@@ -39,8 +39,8 @@ def test_menu_shows_descriptions_and_passes_selected_operation(monkeypatch, caps
     assert "Доступные модули:" in captured
     assert "1) Firewall" in captured
     assert "Настраивает UFW" in captured
-    assert "Доступные действия:" in captured
-    assert "status: Показать текущее состояние без внесения изменений." in captured
+    assert "Поведение меню:" in captured
+    assert "сразу применяется рекомендуемая конфигурация" in captured
     assert "Обслуживание утилиты:" in captured
     assert "9) update" in captured
     assert "10) reinstall" in captured
@@ -48,7 +48,7 @@ def test_menu_shows_descriptions_and_passes_selected_operation(monkeypatch, caps
     assert "Подсказка:" in captured
     assert manager.last_options is not None
     assert manager.last_options.service_codes == [1]
-    assert manager.last_options.operation.value == "status"
+    assert manager.last_options.operation.value == "apply"
 
 
 def test_menu_runs_update_maintenance_action(monkeypatch, capsys) -> None:

@@ -25,6 +25,14 @@ class FirewallService(BaseService):
             message="UFW installed.",
         )
 
+    def apply(self, runtime) -> ModuleResult:
+        if not self.package_installed(runtime, "ufw"):
+            self.apt_install(runtime, ["ufw"])
+        result = self.activate(runtime)
+        result.operation = Operation.APPLY
+        result.message = f"UFW profile {result.details.get('profile', 'base-host')} applied."
+        return result
+
     def uninstall(self, runtime) -> ModuleResult:
         removed_block = runtime.system.remove_managed_block(self.docker_rules_path, "ufw-docker")
         self.apt_remove(runtime, ["ufw"], purge=True)
@@ -112,4 +120,3 @@ class FirewallService(BaseService):
                 "after_rules_file": self.docker_rules_path,
             },
         )
-

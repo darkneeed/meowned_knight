@@ -24,6 +24,12 @@ class DockerService(BaseService):
             message="Docker engine and compose plugin installed.",
         )
 
+    def apply(self, runtime) -> ModuleResult:
+        result = self.install(runtime)
+        result.operation = Operation.APPLY
+        result.message = "Docker baseline applied."
+        return result
+
     def uninstall(self, runtime) -> ModuleResult:
         runtime.system.run(["systemctl", "disable", "--now", "docker"], check=False)
         changed = runtime.system.remove_file(self.config_path)
@@ -85,4 +91,3 @@ class DockerService(BaseService):
             message="Docker manages Ubuntu packages, daemon.json hardening and service lifecycle.",
             details={"config_path": self.config_path},
         )
-

@@ -11,13 +11,6 @@ from app.core.i18n import t
 from app.core.registry import build_service_catalog
 
 
-def _operation_descriptions(lang: str) -> list[tuple[str, str]]:
-    return [
-        (operation.value, t(lang, f"operation.{operation.value}.description"))
-        for operation in Operation
-    ]
-
-
 def _maintenance_actions(lang: str) -> list[tuple[int, str, str]]:
     return [
         (9, "update", t(lang, "menu.maintenance.update")),
@@ -97,9 +90,9 @@ class MenuInterface:
         print()
 
     def _print_operations(self) -> None:
-        print(self._paint(t(self.lang, "menu.operations_title"), self.ANSI_BOLD, self.ANSI_CYAN))
-        for operation, description in _operation_descriptions(self.lang):
-            print(f"  - {self._paint(operation, self.ANSI_GREEN)}: {description}")
+        print(self._paint(t(self.lang, "menu.default_action_title"), self.ANSI_BOLD, self.ANSI_CYAN))
+        print(f"  - {t(self.lang, 'menu.default_action')}")
+        print(f"  - {t(self.lang, 'menu.default_action_all')}")
         print()
         print(self._paint(t(self.lang, "menu.maintenance_title"), self.ANSI_BOLD, self.ANSI_CYAN))
         for code, name, description in _maintenance_actions(self.lang):
@@ -174,17 +167,8 @@ class MenuInterface:
                 print(self._paint(t(self.lang, "menu.invalid"), self.ANSI_RED))
                 continue
 
-            raw_operation = input(
-                self._paint(t(self.lang, "menu.choose_operation"), self.ANSI_BOLD, self.ANSI_CYAN)
-            ).strip().lower()
-            try:
-                operation = Operation(raw_operation)
-            except ValueError:
-                print(self._paint(t(self.lang, "menu.invalid"), self.ANSI_RED))
-                continue
-
             options = CliOptions(
-                operation=operation,
+                operation=Operation.APPLY,
                 service_codes=service_codes,
                 all_services=all_services,
                 log_level=self.runtime.config.log_level,
