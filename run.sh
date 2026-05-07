@@ -3,6 +3,12 @@ set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAUNCHER_PATH="/usr/local/bin/mknight"
+INSTALL_ONLY=0
+
+if [[ "${1:-}" == "--install-only" ]]; then
+  INSTALL_ONLY=1
+  shift
+fi
 
 install_launcher() {
   cat > "${LAUNCHER_PATH}" <<EOF
@@ -37,4 +43,8 @@ fi
 cd "${PROJECT_DIR}"
 uv sync
 install_launcher
+if [[ "${INSTALL_ONLY}" -eq 1 ]]; then
+  echo "mknight installed to ${LAUNCHER_PATH}"
+  exit 0
+fi
 exec "${PROJECT_DIR}/.venv/bin/mknight" "$@"
