@@ -65,15 +65,20 @@ clone_or_update_repo() {
   git clone --depth 1 --branch "${BRANCH}" "${REPO_URL}" "${INSTALL_DIR}"
 }
 
+normalize_permissions() {
+  chmod 755 "${INSTALL_DIR}/run.sh" "${INSTALL_DIR}/install.sh" 2>/dev/null || true
+}
+
 main() {
   require_root
   ensure_supported_os
 
   ensure_prerequisites
   clone_or_update_repo
+  normalize_permissions
 
   cd "${INSTALL_DIR}"
-  ./run.sh --install-only
+  bash ./run.sh --install-only
 
   cat <<EOF
 mknight installed successfully.
